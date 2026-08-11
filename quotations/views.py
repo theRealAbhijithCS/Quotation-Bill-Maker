@@ -1,5 +1,6 @@
 import json
 import datetime
+import base64
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -177,10 +178,16 @@ def profile_view(request):
         user.display_name = display_name or user.username
         user.phone_primary = phone_primary
         user.phone_secondary = phone_secondary
-        user.profile_picture_url = profile_picture_url
+        
 
         if 'profile_picture' in request.FILES:
-            user.profile_picture = request.FILES['profile_picture']
+            image_file = request.FILES['profile_picture']
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            mime_type = image_file.content_type  # e.g., 'image/jpeg', 'image/png'
+            user.profile_picture_url = f"data:{mime_type};base64,{encoded_string}"
+        elif profile_picture_url:
+            # Fallback if they pasted an external image URL instead of uploading
+            user.profile_picture_url = profile_picture_url
 
         user.save()
         messages.success(request, "Profile details (including Username & Email) updated successfully!")
