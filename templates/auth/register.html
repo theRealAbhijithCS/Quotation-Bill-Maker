@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account - M4 Interior Quotation Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto my-6 sm:my-12">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200/80 dark:border-slate-700/80 p-6 sm:p-8">
+        
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white font-black text-2xl mb-3 shadow-lg shadow-blue-500/20">
+                M4
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Create Account</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Register to start creating professional labor quotations</p>
+        </div>
+
+        <form method="POST" action="{% url 'register' %}" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="username" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                        Username <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" id="username" name="username" required placeholder="john_architect"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+
+                <div>
+                    <label for="display_name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                        Display Name / Architect
+                    </label>
+                    <input type="text" id="display_name" name="display_name" placeholder="John Architect"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Email Address <span class="text-rose-500">*</span>
+                </label>
+                <input type="email" id="email" name="email" required placeholder="john@m4interior.com"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+
+            <div>
+                <label for="phone_primary" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                    Primary Phone Number <span class="text-rose-500">*</span>
+                </label>
+                <input type="tel" id="phone_primary" name="phone_primary" required placeholder="+91 98765 43210"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                        Password <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="password" id="password" name="password" required minlength="6" placeholder="••••••••"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+
+                <div>
+                    <label for="confirm_password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                        Confirm Password <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="password" id="confirm_password" name="confirm_password" required minlength="6" placeholder="••••••••"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+            </div>
+
+            <!-- Real-time JS Password Match Feedback Banner -->
+            <div id="regPasswordMatchMessage" class="hidden text-xs font-bold mt-2 p-2.5 rounded-xl transition-all"></div>
+
+            <button type="submit" id="regSubmitBtn" class="w-full mt-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold shadow-md shadow-blue-600/30 transition-all">
+                Complete Registration
+            </button>
+        </form>
+
+        <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 text-center text-xs text-slate-600 dark:text-slate-400">
+            Already have an account? 
+            <a href="{% url 'login' %}" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const passInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm_password');
+        const matchMsg = document.getElementById('regPasswordMatchMessage');
+        const submitBtn = document.getElementById('regSubmitBtn');
+
+        function validatePasswordMatch() {
+            if (!passInput || !confirmInput || !matchMsg) return;
+
+            const val1 = passInput.value;
+            const val2 = confirmInput.value;
+
+            if (val2.length === 0) {
+                matchMsg.className = 'hidden';
+                submitBtn.disabled = false;
+                confirmInput.classList.remove('border-emerald-500', 'border-rose-500');
+                return;
+            }
+
+            if (val1 === val2) {
+                matchMsg.textContent = '✓ Passwords match successfully!';
+                matchMsg.className = 'block text-xs font-bold mt-2 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300';
+                submitBtn.disabled = false;
+                confirmInput.classList.remove('border-rose-500');
+                confirmInput.classList.add('border-emerald-500');
+            } else {
+                matchMsg.textContent = '❌ Passwords do not match. Please verify.';
+                matchMsg.className = 'block text-xs font-bold mt-2 p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300';
+                submitBtn.disabled = true;
+                confirmInput.classList.remove('border-emerald-500');
+                confirmInput.classList.add('border-rose-500');
+            }
+        }
+
+        if (passInput && confirmInput) {
+            passInput.addEventListener('input', validatePasswordMatch);
+            confirmInput.addEventListener('input', validatePasswordMatch);
+        }
+    });
+</script>
+{% endblock %}

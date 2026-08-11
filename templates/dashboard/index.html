@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - M4 Interior Quotation Platform{% endblock %}
+
+{% block content %}
+<div class="space-y-6 sm:space-y-8">
+    
+    <!-- Top Welcome Banner & Quick Action -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                Labour Quotations Dashboard
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Manage, search, preview, and generate M4 interior quotations
+            </p>
+        </div>
+        <a href="{% url 'bill_create' %}" class="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg shadow-blue-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Create New Quotation
+        </a>
+    </div>
+
+    <!-- Summary Metrics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        
+        <!-- Total Quotations Card -->
+        <div class="bg-white dark:bg-darkcard rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-darkborder shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Quotations</p>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ total_bills_count }}</h3>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-3 flex items-center">
+                <span class="text-emerald-600 dark:text-emerald-400 font-semibold mr-1">Active</span> Saved in Neon DB
+            </p>
+        </div>
+
+        <!-- Total Revenue Value Card (REMOVED DOLLAR ICON, REPLACED WITH RUPEE) -->
+        <div class="bg-white dark:bg-darkcard rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-darkborder shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Revenue Value</p>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">₹ {{ total_amount_sum|floatformat:2 }}</h3>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xl sm:text-2xl">
+                    ₹
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">Calculated across all quotations</p>
+        </div>
+
+        <!-- Active Clients Card -->
+        <div class="bg-white dark:bg-darkcard rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-darkborder shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Clients</p>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ unique_clients_count }}</h3>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">Unique client profiles</p>
+        </div>
+
+    </div>
+
+    <!-- Advanced Search & Filters Section -->
+    <div class="bg-white dark:bg-darkcard rounded-2xl p-4 sm:p-6 border border-slate-200/80 dark:border-darkborder shadow-sm">
+        <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+            Filter & Search Quotations
+        </h2>
+
+        <form method="GET" action="{% url 'dashboard' %}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                    Bill Number
+                </label>
+                <input type="text" name="bill_number" value="{{ bill_number_query }}" placeholder="e.g. M4-2026-001"
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                    Client Name
+                </label>
+                <input type="text" name="client_name" value="{{ client_name_query }}" placeholder="Search client name..."
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                    From Date
+                </label>
+                <input type="date" name="date_from" value="{{ date_from }}"
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                    To Date
+                </label>
+                <input type="date" name="date_to" value="{{ date_to }}"
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
+            </div>
+
+            <div class="sm:col-span-2 lg:col-span-4 flex items-center justify-end space-x-3 pt-1 sm:pt-2">
+                {% if bill_number_query or client_name_query or date_from or date_to %}
+                <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    Clear Filters
+                </a>
+                {% endif %}
+                <button type="submit" class="w-full sm:w-auto px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-md transition-all">
+                    Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Quotation List Container -->
+    <div class="bg-white dark:bg-darkcard rounded-2xl border border-slate-200/80 dark:border-darkborder shadow-sm overflow-hidden">
+        
+        <div class="px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Recent Labour Quotations</h2>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ bills|length }} quotation(s)</span>
+        </div>
+
+        {% if bills %}
+        
+        <!-- DESKTOP TABLE VIEW (hidden md:block) -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                <thead class="bg-slate-50 dark:bg-[#0B0F17]/60 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                        <th class="px-6 py-3.5">Bill Number</th>
+                        <th class="px-6 py-3.5">Client & Phone</th>
+                        <th class="px-6 py-3.5">Project Title</th>
+                        <th class="px-6 py-3.5">Date</th>
+                        <th class="px-6 py-3.5 text-right">Grand Total (₹)</th>
+                        <th class="px-6 py-3.5 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800/80">
+                    {% for bill in bills %}
+                    <tr onclick="window.location='{% url 'bill_detail' bill.pk %}'" class="hover:bg-blue-50/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group">
+                        
+                        <td class="px-6 py-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/80 transition-colors">
+                                {{ bill.bill_number }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ bill.client_name }}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ bill.client_phone }}</div>
+                        </td>
+
+                        <td class="px-6 py-4 font-medium">
+                            {{ bill.project_title }}
+                        </td>
+
+                        <td class="px-6 py-4 text-xs font-mono">
+                            {{ bill.bill_date }}
+                        </td>
+
+                        <td class="px-6 py-4 text-right font-extrabold text-slate-900 dark:text-white">
+                            ₹ {{ bill.grand_total|floatformat:2 }}
+                        </td>
+
+                        <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
+                            <div class="flex items-center justify-center space-x-2">
+                                <a href="{% url 'bill_detail' bill.pk %}" title="View Details" class="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </a>
+                                
+                                <a href="{% url 'bill_edit' bill.pk %}" title="Edit Quotation" class="p-1.5 rounded-lg text-slate-600 hover:text-amber-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+
+                                <a href="{% url 'bill_pdf_download' bill.pk %}" title="Download PDF" class="p-1.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                </a>
+
+                                <a href="{% url 'bill_delete' bill.pk %}" title="Delete Quotation" class="p-1.5 rounded-lg text-slate-600 hover:text-rose-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MOBILE CLICKABLE CARD VIEW (block md:hidden) -->
+        <div class="block md:hidden p-3 space-y-3">
+            {% for bill in bills %}
+            <div onclick="window.location='{% url 'bill_detail' bill.pk %}'" class="bg-slate-50 dark:bg-[#0F1622] rounded-xl p-4 border border-slate-200 dark:border-slate-800 space-y-3 cursor-pointer active:scale-[0.99] transition-all hover:border-blue-500 dark:hover:border-blue-500 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-mono font-bold text-xs border border-blue-200 dark:border-blue-800">
+                        {{ bill.bill_number }}
+                    </span>
+                    <span class="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">{{ bill.bill_date }}</span>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center justify-between">
+                        <span>{{ bill.client_name }}</span>
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ bill.client_phone }} • {{ bill.project_title }}</p>
+                </div>
+
+                <div class="flex items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-800/80" onclick="event.stopPropagation()">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Grand Total</span>
+                        <span class="text-lg font-black text-slate-900 dark:text-white">₹ {{ bill.grand_total|floatformat:2 }}</span>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5">
+                        <a href="{% url 'bill_detail' bill.pk %}" class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">View</a>
+                        <a href="{% url 'bill_edit' bill.pk %}" class="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950 text-xs font-bold text-amber-700 dark:text-amber-300">Edit</a>
+                        <a href="{% url 'bill_pdf_download' bill.pk %}" class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="text-center py-12">
+            <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mx-auto text-slate-400 mb-3">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">No Quotations Found</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Start by creating your first labor quotation for M4 Interior.</p>
+            <a href="{% url 'bill_create' %}" class="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow">
+                Create First Quotation
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

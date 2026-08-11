@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+    <defs>
+        <linearGradient id="m4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1d4ed8" />
+            <stop offset="50%" stop-color="#4f46e5" />
+            <stop offset="100%" stop-color="#0284c7" />
+        </linearGradient>
+    </defs>
+    <rect width="128" height="128" rx="32" fill="url(#m4Grad)" />
+    <text x="64" y="86" font-size="70" font-weight="900" font-family="'Inter', 'Helvetica', 'Arial', sans-serif" fill="#FFFFFF" text-anchor="middle">M4</text>
+</svg>

@@ -1,0 +1,9 @@
+Django>=5.0
+fastapi
+uvicorn
+reportlab
+dj-database-url
+psycopg[binary]
+pydantic
+python-dotenv
+whitenoise

@@ -1,0 +1,375 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}M4 Interior Quotation Platform{% endblock %}</title>
+
+    <!-- Brand Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='32' fill='%231d4ed8'/><text x='64' y='86' font-size='70' font-weight='900' font-family='sans-serif' fill='white' text-anchor='middle'>M4</text></svg>">
+    <link rel="alternate icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+
+    <!-- Tailwind CSS CDN with custom SaaS color theme -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0B0F17',
+                        darkcard: '#151C28',
+                        darkborder: '#222F43',
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+
+    <script>
+        // Persistent Theme Switcher Init
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
+        // Mobile Drawer Controller
+        function openMobileDrawer() {
+            document.getElementById('mobileDrawerOverlay').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('mobileDrawerPanel').classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeMobileDrawer() {
+            document.getElementById('mobileDrawerPanel').classList.add('translate-x-full');
+            setTimeout(() => {
+                document.getElementById('mobileDrawerOverlay').classList.add('hidden');
+            }, 300);
+        }
+
+        // Auto-dismiss Success Toasts after 4s (Errors stay until closed)
+        document.addEventListener('DOMContentLoaded', () => {
+            const successAlerts = document.querySelectorAll('.toast-success-msg');
+            successAlerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => alert.remove(), 500);
+                }, 4000);
+            });
+        });
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body
+    class="h-full bg-slate-50 text-slate-900 dark:bg-darkbg dark:text-slate-100 flex flex-col transition-colors duration-200">
+
+    <!-- Top Navigation Header -->
+    <header
+        class="sticky top-0 z-40 bg-white/90 dark:bg-[#0F1622]/90 backdrop-blur border-b border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- Logo / Brand -->
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 group">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-sky-500 flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+                            M4
+                        </div>
+                        <div>
+                            <span class="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">M4
+                                Interior</span>
+                            <span
+                                class="hidden sm:inline text-xs font-semibold px-2 py-0.5 ml-1.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">Quotation</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                {% if user.is_authenticated %}
+                <nav class="hidden md:flex items-center space-x-1">
+                    <a href="{% url 'dashboard' %}"
+                        class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400{% else %}text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'bill_create' %}"
+                        class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-1.5 {% if request.resolver_match.url_name == 'bill_create' %}bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400{% else %}text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        <span>New Quotation</span>
+                    </a>
+                </nav>
+                {% endif %}
+
+                <!-- Right Actions: Theme Switcher & User Profile / Auth -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+
+                    <!-- Dark/Light Theme Toggle Button -->
+                    <button onclick="toggleTheme()" type="button" title="Toggle Light/Dark Theme"
+                        class="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <svg class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                        <svg class="w-5 h-5 block dark:hidden text-slate-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    {% if user.is_authenticated %}
+                    <div class="hidden sm:flex items-center space-x-2">
+                        <a href="{% url 'profile' %}"
+                            class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            {% if user.profile_picture_url %}
+                            <img src="{{ user.profile_picture_url }}" alt="Profile"
+                                class="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500">
+                            {% elif user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Profile"
+                                class="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500">
+                            {% else %}
+                            <div
+                                class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+                                {{ user.get_full_display_name|slice:":2"|upper }}
+                            </div>
+                            {% endif %}
+                            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                {{ user.get_full_display_name }}
+                            </span>
+                        </a>
+
+                        <a href="{% url 'logout' %}" title="Logout"
+                            class="p-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="flex items-center space-x-2">
+                        <a href="{% url 'login' %}"
+                            class="px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">Sign
+                            In</a>
+                        <a href="{% url 'register' %}"
+                            class="px-3.5 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">Get
+                            Started</a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Mobile Hamburger Drawer Button -->
+                    {% if user.is_authenticated %}
+                    <button onclick="openMobileDrawer()" type="button"
+                        class="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- REDESIGNED MOBILE SLIDE-OVER DRAWER MENU -->
+    {% if user.is_authenticated %}
+    <div id="mobileDrawerOverlay"
+        class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300">
+        <div id="mobileDrawerPanel"
+            class="fixed inset-y-0 right-0 max-w-xs w-full bg-white dark:bg-darkcard border-l border-slate-200 dark:border-darkborder shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out">
+
+            <div class="space-y-6">
+                <!-- Drawer Header -->
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2.5">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-blue-600 text-white font-black flex items-center justify-center text-sm shadow">
+                            M4
+                        </div>
+                        <span class="font-bold text-base text-slate-900 dark:text-white">Navigation Menu</span>
+                    </div>
+                    <button onclick="closeMobileDrawer()"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- User Info Card -->
+                <div
+                    class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0F1622] border border-slate-200 dark:border-slate-800 flex items-center space-x-3">
+                    {% if user.profile_picture_url %}
+                    <img src="{{ user.profile_picture_url }}" alt="Profile"
+                        class="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500">
+                    {% elif user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile"
+                        class="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500">
+                    {% else %}
+                    <div
+                        class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">
+                        {{ user.get_full_display_name|slice:":2"|upper }}
+                    </div>
+                    {% endif %}
+                    <div class="overflow-hidden">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">{{
+                            user.get_full_display_name }}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user.phone_primary }}</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="space-y-1.5">
+                    <a href="{% url 'dashboard' %}"
+                        class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                            </path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'bill_create' %}"
+                        class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors {% if request.resolver_match.url_name == 'bill_create' %}bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        <span>New Quotation</span>
+                    </a>
+
+                    <a href="{% url 'profile' %}"
+                        class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60{% endif %}">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span>My Architect Profile</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <button onclick="toggleTheme()" type="button"
+                    class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                    <span>Appearance Theme</span>
+                    <span class="text-amber-500 font-bold dark:text-amber-400">Light / Dark</span>
+                </button>
+
+                <a href="{% url 'logout' %}"
+                    class="block w-full text-center py-2.5 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 font-semibold text-sm">
+                    Log Out Account
+                </a>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Flash Messages / Toast Alerts (Success Auto-Dismisses in 4s, Errors Stay) -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% for message in messages %}
+        <div
+            class="p-4 rounded-xl mb-3 flex items-center justify-between shadow-sm border transition-all 
+            {% if message.tags == 'error' %}toast-error-msg bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200
+            {% elif message.tags == 'success' %}toast-success-msg bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200
+            {% else %}toast-info-msg bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200{% endif %}">
+            <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm font-medium">{{ message }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer
+        class="mt-auto border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0F1622] py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                &copy; 2026 <span class="font-semibold text-slate-700 dark:text-slate-300">M4 Interior &
+                    Architect</span>. All rights reserved.
+            </div>
+            <div class="flex space-x-4">
+                <span class="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                    FastAPI & Neon DB Active
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
