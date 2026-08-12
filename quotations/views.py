@@ -5,7 +5,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
@@ -238,7 +239,7 @@ def bill_create_view(request):
     if request.method == 'POST':
         quotation_title = request.POST.get('quotation_title', 'Labour Quotation').strip()
         company_name = request.POST.get('company_name', 'M4 Interior & Architect').strip()
-        project_title = request.POST.get('project_title', 'Home 1').strip()
+        project_title = request.POST.get('project_title', '').strip()
         client_name = request.POST.get('client_name', '').strip()
         client_phone = request.POST.get('client_phone', '').strip()
         bill_date = request.POST.get('bill_date', str(datetime.date.today()))
@@ -310,39 +311,15 @@ def bill_create_view(request):
     auto_bill_number = generate_bill_number()
     today_date = datetime.date.today().strftime('%Y-%m-%d')
 
-    reference_demo_items = [
-        {"is_section": True, "particulars": "Bed room 1"},
-        {"is_section": False, "sl_no": 1, "particulars": "Wardrobe", "size": "2100*2120", "qty": 49, "unit": "Sq.Ft", "rate": 180, "amount": 8820},
-        {"is_section": True, "particulars": "Bed room 2"},
-        {"is_section": False, "sl_no": 2, "particulars": "wardrobe", "size": "2100*1680", "qty": 39.2, "unit": "Sq.Ft", "rate": 180, "amount": 7056},
-        {"is_section": False, "sl_no": 3, "particulars": "Study unit", "size": "", "qty": 1, "unit": "Nos", "rate": 2500, "amount": 2500},
-        {"is_section": True, "particulars": "Upper Bedroom 1"},
-        {"is_section": False, "sl_no": 4, "particulars": "Wardrobe", "size": "2100*1680", "qty": 39.2, "unit": "Sq.Ft", "rate": 180, "amount": 7056},
-        {"is_section": False, "sl_no": 5, "particulars": "Study unit", "size": "", "qty": 1, "unit": "Nos", "rate": 2500, "amount": 2500},
-        {"is_section": True, "particulars": "Upper Bed room 2"},
-        {"is_section": False, "sl_no": 6, "particulars": "Wardrobe", "size": "2100*1680", "qty": 39.2, "unit": "Sq.Ft", "rate": 180, "amount": 7056},
-        {"is_section": False, "sl_no": 7, "particulars": "Study unit", "size": "", "qty": 1, "unit": "Nos", "rate": 2500, "amount": 2500},
-        {"is_section": False, "sl_no": 8, "particulars": "Dressing", "size": "", "qty": 1, "unit": "Nos", "rate": 2000, "amount": 2000},
-        {"is_section": True, "particulars": "Wash Area"},
-        {"is_section": False, "sl_no": 9, "particulars": "Celling Work", "size": "", "qty": 22, "unit": "Sq.Ft", "rate": 180, "amount": 3960},
-        {"is_section": False, "sl_no": 10, "particulars": "Architrave", "size": "2040*300\n1410*300", "qty": 18.3, "unit": "Sq.Ft", "rate": 180, "amount": 3294},
-        {"is_section": False, "sl_no": 11, "particulars": "Wash basin box", "size": "1410*750", "qty": 11.8, "unit": "Sq.Ft", "rate": 180, "amount": 2115},
-        {"is_section": False, "sl_no": 12, "particulars": "Wash unit mirror fixing", "size": "", "qty": 1, "unit": "Nos", "rate": 600, "amount": 600},
-        {"is_section": False, "sl_no": 13, "particulars": "Stair bottom unit", "size": "", "qty": 22, "unit": "Sq.Ft", "rate": 180, "amount": 3960},
-        {"is_section": False, "sl_no": 14, "particulars": "DB Box door", "size": "", "qty": 1, "unit": "Nos", "rate": 2000, "amount": 2000},
-        {"is_section": True, "particulars": "Kitchen"},
-        {"is_section": False, "sl_no": 15, "particulars": "Kitchen Celling work", "size": "", "qty": 1, "unit": "Nos", "rate": 1800, "amount": 1800},
-        {"is_section": False, "sl_no": 16, "particulars": "Tall unit", "size": "2100*840", "qty": 19, "unit": "Sq.Ft", "rate": 180, "amount": 3420},
-        {"is_section": False, "sl_no": 17, "particulars": "Loft Unit", "size": "2240*760", "qty": 18.3, "unit": "Sq.Ft", "rate": 180, "amount": 3294},
-        {"is_section": False, "sl_no": 18, "particulars": "Wall unit", "size": "760*600\n430*600\n960*600\n930*600\n640*330", "qty": 22, "unit": "Sq.Ft", "rate": 180, "amount": 3960},
-        {"is_section": False, "sl_no": 19, "particulars": "Base unit", "size": "1680*850\n2260*850\n1630*850", "qty": 50.8, "unit": "Sq.Ft", "rate": 180, "amount": 9144}
+    initial_items = [
+        {"is_section": False, "sl_no": 1, "particulars": "", "size": "", "qty": 1, "unit": "Sq.Ft", "rate": 0, "amount": 0}
     ]
 
     return render(request, 'bills/form.html', {
         'is_edit': False,
         'bill_number': auto_bill_number,
         'today_date': today_date,
-        'initial_items_json': json.dumps(reference_demo_items),
+        'initial_items_json': json.dumps(initial_items),
     })
 
 
@@ -488,5 +465,111 @@ def bill_pdf_download_view(request, pk):
     }
     pdf_bytes = generate_quotation_pdf(bill_dict)
     response = HttpResponse(pdf_bytes, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{bill.bill_number}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="{bill.client_name}_{bill.bill_number}.pdf"'
     return response
+
+
+# --- LIVE API ENDPOINTS FOR CALCULATION & PDF PREVIEW MODAL ---
+
+@csrf_exempt
+def fastapi_calculate_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            raw_items = data.get('items', [])
+            grand_total = 0.0
+            for item in raw_items:
+                if not item.get('is_section') and item.get('type') != 'section':
+                    try:
+                        qty = float(item.get('qty', 0) or 0)
+                        rate = float(item.get('rate', 0) or 0)
+                        grand_total += qty * rate
+                    except (ValueError, TypeError):
+                        pass
+            grand_total = round(grand_total, 2)
+            amount_in_words = number_to_words_indian(grand_total)
+            return JsonResponse({'grand_total': grand_total, 'amount_in_words': amount_in_words})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def fastapi_generate_pdf_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            raw_items = data.get('items', [])
+            items_dict_list = []
+            sl_counter = 1
+            calculated_total = 0.0
+
+            for item in raw_items:
+                if item.get('is_section') or item.get('type') == 'section':
+                    items_dict_list.append({
+                        'is_section': True,
+                        'particulars': item.get('particulars', '')
+                    })
+                else:
+                    try:
+                        qty = float(item.get('qty', 0) or 0)
+                    except (ValueError, TypeError):
+                        qty = 0.0
+                    try:
+                        rate = float(item.get('rate', 0) or 0)
+                    except (ValueError, TypeError):
+                        rate = 0.0
+
+                    amount = item.get('amount')
+                    try:
+                        amount = float(amount) if amount is not None else round(qty * rate, 2)
+                    except (ValueError, TypeError):
+                        amount = round(qty * rate, 2)
+
+                    calculated_total += amount
+
+                    items_dict_list.append({
+                        'is_section': False,
+                        'sl_no': item.get('sl_no') or sl_counter,
+                        'particulars': item.get('particulars', ''),
+                        'size': item.get('size', ''),
+                        'qty': qty,
+                        'unit': item.get('unit', 'Sq.Ft'),
+                        'rate': rate,
+                        'amount': amount
+                    })
+                    sl_counter += 1
+
+            grand_total = round(calculated_total, 2)
+            amount_in_words = number_to_words_indian(grand_total)
+
+            architect_phone_1 = ''
+            architect_phone_2 = ''
+            architect_name = 'Rajeev c.s'
+
+            if request.user and request.user.is_authenticated:
+                architect_name = request.user.get_full_display_name()
+                architect_phone_1 = getattr(request.user, 'phone_primary', '') or ''
+                architect_phone_2 = getattr(request.user, 'phone_secondary', '') or ''
+
+            bill_data = {
+                'bill_number': data.get('bill_number') or 'M4-2026-001',
+                'quotation_title': data.get('quotation_title') or 'Labour Quotation',
+                'company_name': data.get('company_name') or 'M4 Interior & Architect',
+                'architect_name': data.get('architect_name') or architect_name,
+                'architect_phone_primary': data.get('architect_phone_primary') or architect_phone_1 or 'Ph.97 44 94 52 08',
+                'architect_phone_secondary': data.get('architect_phone_secondary') or architect_phone_2 or '97 44 94 52 09',
+                'project_title': data.get('project_title') or '',
+                'client_name': data.get('client_name') or '',
+                'client_phone': data.get('client_phone') or '',
+                'bill_date': data.get('bill_date') or str(datetime.date.today()),
+                'items': items_dict_list,
+                'grand_total': grand_total,
+                'amount_in_words': amount_in_words
+            }
+
+            pdf_bytes = generate_quotation_pdf(bill_data)
+            return HttpResponse(pdf_bytes, content_type='application/pdf')
+        except Exception as e:
+            return HttpResponse(str(e), status=500)
+    return HttpResponse('Method not allowed', status=405)

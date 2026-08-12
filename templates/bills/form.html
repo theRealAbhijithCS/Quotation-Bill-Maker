@@ -80,7 +80,7 @@
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
                         Project Title / Location
                     </label>
-                    <input type="text" name="project_title" value="{% if bill %}{{ bill.project_title }}{% else %}Home 1{% endif %}" required placeholder="e.g. Home 1"
+                    <input type="text" name="project_title" value="{% if bill %}{{ bill.project_title }}{% endif %}" required placeholder="e.g. Home 1 / Site Location"
                         class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
 
@@ -89,7 +89,7 @@
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
                         Client Name <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" name="client_name" value="{% if bill %}{{ bill.client_name }}{% else %}Antu{% endif %}" required placeholder="e.g. Antu"
+                    <input type="text" name="client_name" value="{% if bill %}{{ bill.client_name }}{% endif %}" required placeholder="e.g. Client Name"
                         class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
 
@@ -98,7 +98,7 @@
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
                         Client Phone Number <span class="text-slate-400 font-normal">(Optional)</span>
                     </label>
-                    <input type="tel" name="client_phone" value="{% if bill %}{{ bill.client_phone }}{% else %}Ph.97 44 94 52 08{% endif %}" placeholder="Ph.97 44 94 52 08"
+                    <input type="tel" name="client_phone" value="{% if bill %}{{ bill.client_phone }}{% endif %}" placeholder="e.g. 9876543210"
                         class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
 
@@ -249,10 +249,7 @@
 
     if (!itemsData || itemsData.length === 0) {
         itemsData = [
-            { is_section: true, particulars: "Bed room 1" },
-            { is_section: false, sl_no: 1, particulars: "Wardrobe", size: "2100*2120", qty: 49, unit: "Sq.Ft", rate: 180, amount: 8820 },
-            { is_section: true, particulars: "Wash Area" },
-            { is_section: false, sl_no: 2, particulars: "Architrave", size: "2040*300\n1410*300", qty: 18.3, unit: "Sq.Ft", rate: 180, amount: 3294 }
+            { is_section: false, sl_no: 1, particulars: "", size: "", qty: 1, unit: "Sq.Ft", rate: 0, amount: 0 }
         ];
     }
 
@@ -547,15 +544,38 @@
         const form = document.getElementById('quotationForm');
         const formData = new FormData(form);
 
+        const cleanedItems = itemsData.map((item, idx) => {
+            if (item.is_section || item.type === 'section') {
+                return {
+                    is_section: true,
+                    type: 'section',
+                    particulars: item.particulars || ''
+                };
+            }
+            const q = parseFloat(item.qty) || 0;
+            const r = parseFloat(item.rate) || 0;
+            return {
+                is_section: false,
+                type: 'item',
+                sl_no: item.sl_no || (idx + 1),
+                particulars: item.particulars || '',
+                size: item.size || '',
+                qty: q,
+                unit: item.unit || 'Sq.Ft',
+                rate: r,
+                amount: Math.round(q * r * 100) / 100
+            };
+        });
+
         const billPayload = {
             bill_number: "{{ bill_number }}",
             quotation_title: formData.get('quotation_title') || "Labour Quotation",
-            company_name: "M4 Interior & Architect",
-            project_title: formData.get('project_title') || "Home 1",
-            client_name: formData.get('client_name') || "Antu",
+            company_name: formData.get('company_name') || "M4 Interior & Architect",
+            project_title: formData.get('project_title') || "",
+            client_name: formData.get('client_name') || "",
             client_phone: formData.get('client_phone') || "",
             bill_date: formData.get('bill_date') || "",
-            items: itemsData
+            items: cleanedItems
         };
 
         fetch('/api/fastapi/generate-pdf', {
@@ -563,13 +583,21 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(billPayload)
         })
-        .then(res => res.blob())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+            }
+            return res.blob();
+        })
         .then(blob => {
             const blobUrl = URL.createObjectURL(blob);
             document.getElementById('pdfPreviewIframe').src = blobUrl;
             document.getElementById('pdfReviewModal').classList.remove('hidden');
         })
-        .catch(err => alert("Error generating PDF preview: " + err));
+        .catch(err => {
+            console.error("PDF preview error:", err);
+            alert("Unable to generate PDF preview. Please check network/server status.");
+        });
     }
 
     function closePdfReviewModal() {

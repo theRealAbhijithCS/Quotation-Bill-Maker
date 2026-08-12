@@ -1,3 +1,4 @@
+import json
 import datetime
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -109,3 +110,32 @@ class ViewTests(TestCase):
 
         search_res_client = self.client.get(reverse('dashboard') + '?client_name=Sharma')
         self.assertContains(search_res_client, "M4-2026-101")
+
+    def test_fresh_quotation_create_view(self):
+        self.client.login(username="architect1", password="Password123")
+        create_res = self.client.get(reverse('bill_create'))
+        self.assertEqual(create_res.status_code, 200)
+        self.assertNotContains(create_res, 'value="Antu"')
+        self.assertNotContains(create_res, 'value="Home 1"')
+        self.assertNotContains(create_res, 'particulars": "Wardrobe"')
+        self.assertContains(create_res, 'placeholder="e.g. Client Name"')
+
+    def test_live_pdf_preview_api(self):
+        self.client.login(username="architect1", password="Password123")
+        payload = {
+            'bill_number': 'M4-2026-888',
+            'quotation_title': 'Labour Quotation',
+            'company_name': 'M4 Interior & Architect',
+            'project_title': 'Site A',
+            'client_name': 'Ramesh',
+            'client_phone': '9876543210',
+            'bill_date': '2026-08-12',
+            'items': [{'is_section': False, 'sl_no': 1, 'particulars': 'Painting', 'size': '', 'qty': 10, 'unit': 'Sq.Ft', 'rate': 50, 'amount': 500}]
+        }
+        res = self.client.post(
+            reverse('fastapi_generate_pdf'),
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.content.startswith(b"%PDF"))

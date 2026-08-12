@@ -148,15 +148,15 @@ def generate_quotation_pdf(bill_data):
     owner_phone_2 = str(bill_data.get('architect_phone_secondary') or '')
 
     if owner_phone_2:
-        owner_phones_display = f"Phone: <b>{owner_phone_1}</b><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{owner_phone_2}</b>"
+        owner_phones_display = f"Phone: <b>{owner_phone_1},</b><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{owner_phone_2}</b>"
     else:
         if "97 44 94 52 08" in owner_phone_1 and "97 44 94 52 09" not in owner_phone_1:
             owner_phones_display = "Phone: <b>Ph.97 44 94 52 08</b><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Ph.97 44 94 52 09</b>"
         else:
             owner_phones_display = f"Phone: <b>{owner_phone_1}</b>"
     
-    project_title_str = str(bill_data.get('project_title') or 'Home 1')
-    client_name_str = str(bill_data.get('client_name') or 'Antu')
+    project_title_str = str(bill_data.get('project_title') or '')
+    client_name_str = str(bill_data.get('client_name') or '')
     client_phone_str = str(bill_data.get('client_phone') or '')
 
     bill_date_str = str(bill_data.get('bill_date') or '14/05/2026')
@@ -180,7 +180,12 @@ def generate_quotation_pdf(bill_data):
 
     right_meta_html = f"Client:- <b>{client_name_str}</b><br/>"
     if client_phone_str:
-        right_meta_html += f"Ph:- <b>{client_phone_str}</b><br/>"
+        clean_phone = client_phone_str.strip()
+        for pfix in ['ph.-', 'ph:-', 'ph.', 'ph:', 'phone:', 'phone.-', 'phone']:
+            if clean_phone.lower().startswith(pfix):
+                clean_phone = clean_phone[len(pfix):].strip()
+                break
+        right_meta_html += f"Ph:- <b>{clean_phone}</b><br/>"
     right_meta_html += f"Project:- <b>{project_title_str}</b><br/>"
     right_meta_html += f"Date:- <b>{bill_date_str}</b>"
 

@@ -47,6 +47,20 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
+        /* Hide scrollbars globally across all browsers */
+        ::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+            display: none;
+        }
+        * {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        textarea {
+            resize: none;
+        }
     </style>
 
     <script>

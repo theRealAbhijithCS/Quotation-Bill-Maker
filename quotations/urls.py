@@ -24,4 +24,8 @@ urlpatterns = [
     # PDF
     path('bills/<int:pk>/pdf/preview/', views.bill_pdf_preview_view, name='bill_pdf_preview'),
     path('bills/<int:pk>/pdf/download/', views.bill_pdf_download_view, name='bill_pdf_download'),
+
+    # Live Calculation & PDF Modal Preview Endpoints
+    path('api/fastapi/calculate', views.fastapi_calculate_view, name='fastapi_calculate'),
+    path('api/fastapi/generate-pdf', views.fastapi_generate_pdf_view, name='fastapi_generate_pdf'),
 ]

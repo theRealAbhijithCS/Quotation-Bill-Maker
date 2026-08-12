@@ -32,17 +32,17 @@ class CalculationResponse(BaseModel):
 
 
 class BillPdfRequest(BaseModel):
-    bill_number: str
+    bill_number: Optional[str] = "M4-2026-001"
     quotation_title: Optional[str] = "Labour Quotation"
     company_name: Optional[str] = "M4 Interior & Architect"
     architect_name: Optional[str] = "Rajeev c.s"
     architect_phone_primary: Optional[str] = "Ph.97 44 94 52 08"
     architect_phone_secondary: Optional[str] = "97 44 94 52 09"
-    project_title: Optional[str] = "Home 1"
-    client_name: str
+    project_title: Optional[str] = ""
+    client_name: Optional[str] = ""
     client_phone: Optional[str] = ""
-    bill_date: str
-    items: List[ItemInput]
+    bill_date: Optional[str] = ""
+    items: List[ItemInput] = []
 
 
 @app.post("/api/fastapi/calculate", response_model=CalculationResponse)
@@ -100,7 +100,7 @@ def generate_pdf_endpoint(req: BillPdfRequest):
             'architect_name': req.architect_name or "Rajeev c.s",
             'architect_phone_primary': req.architect_phone_primary or "Ph.97 44 94 52 08",
             'architect_phone_secondary': req.architect_phone_secondary or "97 44 94 52 09",
-            'project_title': req.project_title or "Home 1",
+            'project_title': req.project_title or "",
             'client_name': req.client_name,
             'client_phone': req.client_phone or "",
             'bill_date': req.bill_date,
