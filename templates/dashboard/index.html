@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load quotation_filters %}
 
 {% block title %}Dashboard - M4 Interior Quotation Platform{% endblock %}
 
@@ -45,7 +46,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Revenue Value</p>
-                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">₹ {{ total_amount_sum|floatformat:2 }}</h3>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">₹ {{ total_amount_sum|indian_format }}</h3>
                 </div>
                 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xl sm:text-2xl">
                     ₹
@@ -171,7 +172,7 @@
                         </td>
 
                         <td class="px-6 py-4 text-right font-extrabold text-slate-900 dark:text-white">
-                            ₹ {{ bill.grand_total|floatformat:2 }}
+                            ₹ {{ bill.grand_total|indian_format }}
                         </td>
 
                         <td class="px-6 py-4 text-center" onclick="event.stopPropagation()">
@@ -221,7 +222,7 @@
                 <div class="flex items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-800/80" onclick="event.stopPropagation()">
                     <div>
                         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Grand Total</span>
-                        <span class="text-lg font-black text-slate-900 dark:text-white">₹ {{ bill.grand_total|floatformat:2 }}</span>
+                        <span class="text-lg font-black text-slate-900 dark:text-white">₹ {{ bill.grand_total|indian_format }}</span>
                     </div>
 
                     <div class="flex items-center space-x-1.5">

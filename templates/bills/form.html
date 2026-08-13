@@ -108,7 +108,7 @@
                         Description / Materials Used <span class="text-slate-400 font-normal">(Optional)</span>
                     </label>
                     <textarea id="descriptionTextarea" name="description" rows="4" oninput="autoExpandTextarea(this)" placeholder="e.g. Specification of materials used, Century Plywood 18mm, Merino Laminate 1mm, Hettich fittings, etc."
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 min-h-[110px] overflow-hidden transition-all resize-y">{% if bill %}{{ bill.description }}{% endif %}</textarea>
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 min-h-[110px] overflow-hidden transition-all resize-y">{% if bill and bill.description %}{{ bill.description }}{% endif %}</textarea>
                 </div>
 
             </div>
@@ -389,7 +389,7 @@
                             class="w-full px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-xs text-right font-semibold">
                     </td>
                     <td id="desktop-amount-${index}" class="p-2 text-right font-extrabold text-slate-900 dark:text-white font-mono">
-                        ${(parseFloat(item.amount) || 0).toFixed(2)}
+                        ${formatIndianCurrencyJS(item.amount)}
                     </td>
                     <td class="p-2 text-center">
                         <button type="button" onclick="removeItem(${index})" title="Delete row" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950">
@@ -461,7 +461,7 @@
 
                     <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
                         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Subtotal Amount</span>
-                        <span id="mobile-amount-${index}" class="text-sm font-extrabold text-blue-600 dark:text-blue-400 font-mono">₹ ${(parseFloat(item.amount) || 0).toFixed(2)}</span>
+                        <span id="mobile-amount-${index}" class="text-sm font-extrabold text-blue-600 dark:text-blue-400 font-mono">₹ ${formatIndianCurrencyJS(item.amount)}</span>
                     </div>
                 `;
                 mobileCardsContainer.appendChild(mbCard);
@@ -481,6 +481,30 @@
         return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
+    function formatIndianCurrencyJS(amount) {
+        let val = parseFloat(amount) || 0;
+        let isNeg = val < 0;
+        val = Math.abs(val);
+        let parts = val.toFixed(2).split('.');
+        let intPart = parts[0];
+        let decPart = parts[1];
+        let formattedInt = intPart;
+        if (intPart.length > 3) {
+            let last3 = intPart.substring(intPart.length - 3);
+            let rest = intPart.substring(0, intPart.length - 3);
+            let groups = [];
+            while (rest.length > 2) {
+                groups.unshift(rest.substring(rest.length - 2));
+                rest = rest.substring(0, rest.length - 2);
+            }
+            if (rest) groups.unshift(rest);
+            groups.push(last3);
+            formattedInt = groups.join(',');
+        }
+        let res = formattedInt + '.' + decPart;
+        return isNeg ? '-' + res : res;
+    }
+
     function updateItem(index, key, value) {
         itemsData[index][key] = value;
         if (key === 'qty' || key === 'rate') {
@@ -491,11 +515,11 @@
 
             const dtAmtEl = document.getElementById(`desktop-amount-${index}`);
             if (dtAmtEl) {
-                dtAmtEl.innerText = amt.toFixed(2);
+                dtAmtEl.innerText = formatIndianCurrencyJS(amt);
             }
             const mbAmtEl = document.getElementById(`mobile-amount-${index}`);
             if (mbAmtEl) {
-                mbAmtEl.innerText = `₹ ${amt.toFixed(2)}`;
+                mbAmtEl.innerText = `₹ ${formatIndianCurrencyJS(amt)}`;
             }
         }
         itemsJsonInput.value = JSON.stringify(itemsData);
@@ -542,7 +566,7 @@
             }
         });
         total = Math.round(total * 100) / 100;
-        document.getElementById('grandTotalText').innerText = total.toFixed(2);
+        document.getElementById('grandTotalText').innerText = formatIndianCurrencyJS(total);
         itemsJsonInput.value = JSON.stringify(itemsData);
 
         fetch('/api/fastapi/calculate', {
@@ -592,6 +616,9 @@
             };
         });
 
+        const descElem = document.getElementById('descriptionTextarea');
+        const descriptionVal = descElem ? descElem.value : (formData.get('description') || "");
+
         const billPayload = {
             bill_number: "{{ bill_number }}",
             quotation_title: formData.get('quotation_title') || "Labour Quotation",
@@ -599,7 +626,7 @@
             project_title: formData.get('project_title') || "",
             client_name: formData.get('client_name') || "",
             client_phone: formData.get('client_phone') || "",
-            description: formData.get('description') || "",
+            description: descriptionVal,
             bill_date: formData.get('bill_date') || "",
             items: cleanedItems
         };

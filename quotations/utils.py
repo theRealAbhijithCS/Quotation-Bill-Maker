@@ -24,6 +24,46 @@ def generate_bill_number():
     return f"M4-{year}-{next_num:03d}"
 
 
+def format_indian_currency(amount):
+    """
+    Formats a float, int, or Decimal into Indian number format with commas and 2 decimals.
+    Examples:
+    1000 -> 1,000.00
+    100000 -> 1,00,000.00
+    1234567.89 -> 12,34,567.89
+    """
+    if amount is None or amount == "":
+        return "0.00"
+    try:
+        val = float(amount)
+    except (ValueError, TypeError):
+        return "0.00"
+
+    is_negative = val < 0
+    val = abs(val)
+
+    s = f"{val:.2f}"
+    integer_part, decimal_part = s.split('.')
+
+    if len(integer_part) <= 3:
+        formatted_int = integer_part
+    else:
+        last3 = integer_part[-3:]
+        rest = integer_part[:-3]
+        groups = []
+        while len(rest) > 2:
+            groups.insert(0, rest[-2:])
+            rest = rest[:-2]
+        if rest:
+            groups.insert(0, rest)
+        groups.append(last3)
+        formatted_int = ",".join(groups)
+
+    result = f"{formatted_int}.{decimal_part}"
+    return f"-{result}" if is_negative else result
+
+
+
 _ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
          "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
          "Seventeen", "Eighteen", "Nineteen"]

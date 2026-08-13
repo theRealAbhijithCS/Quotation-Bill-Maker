@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load quotation_filters %}
 
 {% block title %}Quotation {{ bill.bill_number }} - M4 Interior{% endblock %}
 
@@ -134,8 +135,8 @@
                         <td class="p-3 text-center font-mono whitespace-pre-line leading-relaxed">{{ item.size }}</td>
                         <td class="p-3 text-center font-semibold">{{ item.qty }}</td>
                         <td class="p-3 text-center font-semibold">{{ item.unit }}</td>
-                        <td class="p-3 text-right font-mono">₹ {{ item.rate|floatformat:2 }}</td>
-                        <td class="p-3 text-right font-mono font-bold text-slate-900 dark:text-white">₹ {{ item.amount|floatformat:2 }}</td>
+                        <td class="p-3 text-right font-mono">₹ {{ item.rate|indian_format }}</td>
+                        <td class="p-3 text-right font-mono font-bold text-slate-900 dark:text-white">₹ {{ item.amount|indian_format }}</td>
                     </tr>
                     {% endif %}
                     {% endfor %}
@@ -173,8 +174,8 @@
                 </div>
 
                 <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
-                    <span class="text-slate-500 dark:text-slate-400">Rate: ₹ {{ item.rate|floatformat:2 }}</span>
-                    <span class="font-extrabold text-sm text-slate-900 dark:text-white font-mono">Amount: ₹ {{ item.amount|floatformat:2 }}</span>
+                    <span class="text-slate-500 dark:text-slate-400">Rate: ₹ {{ item.rate|indian_format }}</span>
+                    <span class="font-extrabold text-sm text-slate-900 dark:text-white font-mono">Amount: ₹ {{ item.amount|indian_format }}</span>
                 </div>
             </div>
             {% endif %}
@@ -193,7 +194,7 @@
             <div class="text-right">
                 <span class="text-xs uppercase tracking-widest font-bold text-slate-400">Grand Total</span>
                 <div class="text-2xl sm:text-3xl font-black text-white">
-                    ₹ {{ bill.grand_total|floatformat:2 }}
+                    ₹ {{ bill.grand_total|indian_format }}
                 </div>
             </div>
         </div>

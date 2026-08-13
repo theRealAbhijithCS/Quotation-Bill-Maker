@@ -6,6 +6,7 @@ from reportlab.platypus import (
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from quotations.utils import format_indian_currency
 
 def generate_quotation_pdf(bill_data):
     """
@@ -242,8 +243,8 @@ def generate_quotation_pdf(bill_data):
             calculated_total += amount
 
             qty_str = f"{qty:g}"
-            rate_str = f"{rate:.2f}"
-            amount_str = f"{amount:.2f}"
+            rate_str = format_indian_currency(rate)
+            amount_str = format_indian_currency(amount)
 
             sl_no_val = str(item.get('sl_no') or sl_counter)
             sl_counter += 1
@@ -331,7 +332,7 @@ def generate_quotation_pdf(bill_data):
 
     # 4. Total Row (NO UNDERLINE ON TOTAL AMOUNT)
     grand_total_val = float(bill_data.get('grand_total') if bill_data.get('grand_total') is not None else calculated_total)
-    total_amount_str = f"{grand_total_val:.2f}"
+    total_amount_str = format_indian_currency(grand_total_val)
 
     total_row = [
         [

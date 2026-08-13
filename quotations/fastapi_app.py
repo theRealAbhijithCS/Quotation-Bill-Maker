@@ -41,6 +41,7 @@ class BillPdfRequest(BaseModel):
     project_title: Optional[str] = ""
     client_name: Optional[str] = ""
     client_phone: Optional[str] = ""
+    description: Optional[str] = ""
     bill_date: Optional[str] = ""
     items: List[ItemInput] = []
 
@@ -103,6 +104,7 @@ def generate_pdf_endpoint(req: BillPdfRequest):
             'project_title': req.project_title or "",
             'client_name': req.client_name,
             'client_phone': req.client_phone or "",
+            'description': req.description or "",
             'bill_date': req.bill_date,
             'items': items_dict_list,
             'grand_total': grand_total,
