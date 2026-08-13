@@ -102,6 +102,15 @@
                         class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
 
+                <!-- Description / Materials Used (Optional) -->
+                <div class="sm:col-span-2 lg:col-span-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                        Description / Materials Used <span class="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <textarea id="descriptionTextarea" name="description" rows="4" oninput="autoExpandTextarea(this)" placeholder="e.g. Specification of materials used, Century Plywood 18mm, Merino Laminate 1mm, Hettich fittings, etc."
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B0F17] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 min-h-[110px] overflow-hidden transition-all resize-y">{% if bill %}{{ bill.description }}{% endif %}</textarea>
+                </div>
+
             </div>
         </div>
 
@@ -590,6 +599,7 @@
             project_title: formData.get('project_title') || "",
             client_name: formData.get('client_name') || "",
             client_phone: formData.get('client_phone') || "",
+            description: formData.get('description') || "",
             bill_date: formData.get('bill_date') || "",
             items: cleanedItems
         };
@@ -678,8 +688,18 @@
         document.getElementById('quotationForm').submit();
     }
 
+    function autoExpandTextarea(el) {
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = Math.max(110, el.scrollHeight + 6) + 'px';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         renderUI();
+        const descEl = document.getElementById('descriptionTextarea');
+        if (descEl) {
+            autoExpandTextarea(descEl);
+        }
     });
 </script>
 {% endblock %}

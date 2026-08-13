@@ -35,6 +35,7 @@ class Bill(models.Model):
     
     grand_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     amount_in_words = models.CharField(max_length=500, blank=True)
+    description = models.TextField(blank=True, default="", help_text="Optional description or materials used")
     notes = models.TextField(blank=True, default="Quotation valid for 30 days.")
     
     created_at = models.DateTimeField(auto_now_add=True)

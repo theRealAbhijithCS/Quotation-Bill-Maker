@@ -370,11 +370,42 @@ def generate_quotation_pdf(bill_data):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
     ]))
 
-    story.append(KeepTogether([
-        words_table,
-        Spacer(1, 12),
-        Paragraph("Thank you for choosing M4 Interior & Architect! We are happy to work with you.", thank_you_style)
-    ]))
+    footer_elements = [words_table]
+
+    # Optional Description / Material Used block (placed before Thank You message)
+    description_str = str(bill_data.get('description') or '').strip()
+    if description_str:
+        desc_style = ParagraphStyle(
+            'QuotationDescription',
+            parent=styles['Normal'],
+            fontName='Helvetica',
+            fontSize=9,
+            leading=12.5,
+            textColor=text_color,
+            alignment=TA_LEFT
+        )
+        formatted_desc = description_str.replace('\n', '<br/>')
+        desc_html = f"<b>Description / Materials Used:</b><br/>{formatted_desc}"
+        desc_table = Table(
+            [[Paragraph(desc_html, desc_style)]],
+            colWidths=[523]
+        )
+        desc_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#F8FAFC")),
+            ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        footer_elements.append(Spacer(1, 8))
+        footer_elements.append(desc_table)
+
+    footer_elements.append(Spacer(1, 12))
+    footer_elements.append(Paragraph("Thank you for choosing M4 Interior & Architect! We are happy to work with you.", thank_you_style))
+
+    story.append(KeepTogether(footer_elements))
 
     doc.build(story)
     buffer.seek(0)

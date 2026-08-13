@@ -242,6 +242,7 @@ def bill_create_view(request):
         project_title = request.POST.get('project_title', '').strip()
         client_name = request.POST.get('client_name', '').strip()
         client_phone = request.POST.get('client_phone', '').strip()
+        description = request.POST.get('description', '').strip()
         bill_date = request.POST.get('bill_date', str(datetime.date.today()))
         items_json_raw = request.POST.get('items_json', '[]')
 
@@ -299,6 +300,7 @@ def bill_create_view(request):
             project_title=project_title,
             client_name=client_name,
             client_phone=client_phone,
+            description=description,
             bill_date=bill_date,
             items=cleaned_items,
             grand_total=grand_total,
@@ -333,6 +335,7 @@ def bill_edit_view(request, pk):
         project_title = request.POST.get('project_title', bill.project_title).strip()
         client_name = request.POST.get('client_name', bill.client_name).strip()
         client_phone = request.POST.get('client_phone', bill.client_phone).strip()
+        description = request.POST.get('description', getattr(bill, 'description', '')).strip()
         bill_date = request.POST.get('bill_date', str(bill.bill_date))
         items_json_raw = request.POST.get('items_json', '[]')
 
@@ -376,6 +379,7 @@ def bill_edit_view(request, pk):
         bill.project_title = project_title
         bill.client_name = client_name
         bill.client_phone = client_phone
+        bill.description = description
         bill.bill_date = bill_date
         bill.items = cleaned_items
         bill.grand_total = grand_total
@@ -432,6 +436,7 @@ def bill_pdf_preview_view(request, pk):
         'project_title': bill.project_title,
         'client_name': bill.client_name,
         'client_phone': bill.client_phone,
+        'description': getattr(bill, 'description', ''),
         'bill_date': str(bill.bill_date),
         'items': bill.items,
         'grand_total': float(bill.grand_total),
@@ -458,6 +463,7 @@ def bill_pdf_download_view(request, pk):
         'project_title': bill.project_title,
         'client_name': bill.client_name,
         'client_phone': bill.client_phone,
+        'description': getattr(bill, 'description', ''),
         'bill_date': str(bill.bill_date),
         'items': bill.items,
         'grand_total': float(bill.grand_total),
@@ -562,6 +568,7 @@ def fastapi_generate_pdf_view(request):
                 'project_title': data.get('project_title') or '',
                 'client_name': data.get('client_name') or '',
                 'client_phone': data.get('client_phone') or '',
+                'description': data.get('description') or '',
                 'bill_date': data.get('bill_date') or str(datetime.date.today()),
                 'items': items_dict_list,
                 'grand_total': grand_total,
